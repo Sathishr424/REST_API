@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign Up & Login Interface</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/> -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'/>
+    <link href='./style.css' rel='stylesheet'/>
+  </head>
+  <body>
+    <div id='container'>
+        <div style='display: flex; flex-direction: row;'>
+            <button onclick='toggle(this)' class='myBtn' id='sign_in_toggle'>Sign In</button>
+            <button onclick='toggle(this)' class='myBtn' id='sign_up_toggle'>Sign Up</button>
+        </div>    
+        <div id='signUpContainer' class='holder'>
+            <div id='toggle_sign_up'>
+                <form id='signUp'>
+                    <label>Username</label>
+                    <input class='form-control' id='uname' type='text' placeholder="Username" name='username' required>
+                    <label>Password</label>
+                    <input class='form-control' id='pass' type='password' placeholder="password" name='password' required>
+                    <label>Confirm password</label>
+                    <input class='form-control' id='cPass' type='password' placeholder="password" name='c_password' required>
+                    <button class='myBtn' type="submit">Sign Up</button>
+                </form>
+            </div>
+        </div>
+        <div id='signInContainer' class='holder'>
+            <div id='toggle_sign_in'>
+                <form id='signIn'>
+                    <label>Username</label>
+                    <input class='form-control' type='text' placeholder="Username" name='username' required>
+                    <label>Password</label>
+                    <input class='form-control' type='password' placeholder="password" name='password' required>
+                    <button class='myBtn' type="submit">Sign In</button>
+                </form>
+            </div>
+        </div>
+        <h2 id='welcome'></h2>
+        <button onclick='downloadData()' style='display: none' class='myBtn' id='download'>Download Data</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"
+            integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+            crossorigin="anonymous"></script>
+    <script>
+
+        function toggle(e){
+            if (e.id == 'sign_in_toggle'){
+                $('#signInContainer').css('display', $('#signInContainer').css('display') == 'block' ? 'none' : 'block');
+                $('#signUpContainer').css('display', 'none');
+            }else if(e.id == 'sign_up_toggle'){
+                $('#signUpContainer').css('display', $('#signUpContainer').css('display') == 'block' ? 'none' : 'block');
+                $('#signInContainer').css('display', 'none');
+            }
+        }
+
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+        function downloadData() {
+            $.ajax({
+                url: '/all',
+                type: 'post',
+                success: function(data) {
+                    if (data) download("user_data.csv", data.join('\n'));
+                }
+            });
+        }
+
+        $(function(){
+            $('#signUp').submit(e=>{
+                e.preventDefault();
+                let info = [];
+                if ($('#pass').val().length <= 4) info.push("Password must be atleast 5 characters length!");
+                if ($('#pass').val() !== $('#cPass').val()) info.push("Password and confirm password must be same!");
+                if ($('#uname').val().length <= 2) info.push("Username must be atleast 3 characters long!");
+                if (info.length == 0) 
+                    $.ajax({
+                        url: '/sign_up',
+                        type: 'post',
+                        data: $('#signUp').serialize(),
+                        success: function(data) {
+                            alert("Sign up successfull! Please login..");
+                        }
+                    });
+                else alert(info.join('\n\n'));
+            });
+            $('#signIn').submit(e=>{
+                e.preventDefault();
+                let info = [];
+                let data = $('#signIn').serializeArray();
+                console.log($('#signIn').serializeArray());
+                if (data[1].value.length <= 4) info.push("Password must be atleast 5 characters length!");
+                if (data[1].value.length <= 2) info.push("Username must be atleast 3 characters long!");
+                if (info.length == 0) 
+                    $.ajax({
+                        url: '/sign_in',
+                        type: 'post',
+                        data: $('#signIn').serialize(),
+                        success: function(data) {
+                            if (data === 'User not found') alert("Sign in failed!");
+                            else {
+                                alert(data + " Signed in successfully!");
+                                $('#welcome').html(`Welcome ${data}!`);
+                                $('#download').css('display', 'block');
+                            }
+                        }
+                    });
+                else alert(info.join('\n\n'));
+            });
+        })
+    </script>
+  </body>
+</html>
