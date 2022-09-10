@@ -29,7 +29,7 @@ const validateMobile = (email) => {
 };
 
 app.get('/', (req,res) => {
-    res.send("Please use '/user' to make requests...");
+    res.send("Welcome to the base url! <br><br> To create user use POST '/user.<br> To create product use POST '/product'.<br> To place order use POST '/order' and passing product_id and user_id and qty.<br> To get users order use GET '/orders/:user_id'.<br> To search users use GET '/users/search/:key/:page'.<br> To filter products use GET '/products/filter' and pass brand and color and size queries.");
 });
 
 app.post('/user', (req,res) => {
