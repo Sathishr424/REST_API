@@ -173,7 +173,7 @@ app.get('/users/search/:key/:page', async (req, res) => {
     }
     console.log(key, page)
 
-    User.find({$or: [ {name: {$regex: '.*' + key + '.*'}}, {email: {$regex: '.*' + key + '.*'}}, {mobile: {$regex: '.*' + key + '.*'}} ]}, (err, data) => {
+    User.find({$or: [ {name: {$regex: '.*' + key + '.*', $options : 'i'}}, {email: {$regex: '.*' + key + '.*', $options : 'i'}}, {mobile: {$regex: '.*' + key + '.*', $options : 'i'}} ]}, (err, data) => {
         if (data) {
             if ( data.length <= (page-1)*PER_PAGE ){
                 return res.status(400).json({'pageination_error': "Requested page can't be returned"});
